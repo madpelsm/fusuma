@@ -38,8 +38,9 @@ module Fusuma
     private
 
     def libinput_command
+      # NOTE: --enable-dwt means "disable while typing"
       @libinput_command ||= "stdbuf -oL -- libinput-debug-events --device \
-    /dev/input/#{device_name}"
+      /dev/input/#{device_name} --enable-dwt"
       MultiLogger.debug(libinput_command: @libinput_command)
       @libinput_command
     end
@@ -68,11 +69,11 @@ module Fusuma
     end
 
     def trigger_keyevent(gesture_info)
-      case gesture_info.action
+      case gesture_info.action_type
       when 'swipe'
-        swipe(gesture_info.finger, gesture_info.direction.move)
+        swipe(gesture_info.finger, gesture_info.direction)
       when 'pinch'
-        pinch(gesture_info.direction.pinch)
+        pinch(gesture_info.direction)
       end
     end
 
@@ -81,8 +82,8 @@ module Fusuma
       `xdotool key #{shortcut}`
     end
 
-    def pinch(zoom)
-      shortcut = event_map['pinch'][zoom]['shortcut']
+    def pinch(direction)
+      shortcut = event_map['pinch'][direction]['shortcut']
       `xdotool key #{shortcut}`
     end
 
